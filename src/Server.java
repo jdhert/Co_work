@@ -10,21 +10,20 @@ import java.util.Random;
 public class Server {
     static ArrayList<Socket> sockets = new ArrayList<>();
     static ServerSocket server = null;
-    static int[] arr = MakeArray();
+    static int[] arr = null;
     static int count =0;
     public static void main(String[] args) {
         try {
-            server = new ServerSocket(50001);
+            server = new ServerSocket(50002);
             while(true) {
                 System.out.println("대기");
                 Socket socket = server.accept(); // 2명만 접속허용
-                count++;
                 new Thread(() -> {
                     if (count <= 2) {
+                        count++;
                         sockets.add(socket);
                         game(socket);
-                        count -= 2;
-                        arr = MakeArray();
+                        count --;
                     }
                 }).start();
 
@@ -33,31 +32,34 @@ public class Server {
 
         }
     }
-    static int i = 0;
+    static boolean check = true;
+    static int in;
+    static int m;
     public static void game(Socket socket){
         DataInputStream dis = null;
         DataOutputStream dos = null;
-        int m = 0;
-        int[] nums = null;
         String id = "";
         InetSocketAddress isa = (InetSocketAddress)  socket.getRemoteSocketAddress();
         System.out.println("[서버] " + isa.getHostName() + "의 연결 요청을 수락함");
         try {
             dis = new DataInputStream(socket.getInputStream());
             id = dis.readUTF();
-            String message = "";
-            String numbs ="";
-//            String abc;
-//            if(i == 0 ) {
-//                abc = dis.readUTF();
-//                m = Integer.parseInt(abc);
-//                i++;
-//            }
-
+            String message;
+            String numbs;
+            if(check){
+                check = false;
+                System.out.println("이니셜라이즈");
+                dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF("init");
+                m = Integer.parseInt(dis.readUTF());
+                in = Integer.parseInt(dis.readUTF());
+                arr =makeArray(m);
+            } else {
+                dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF("bb");
+            }
 
             while (true) {
-
-                m=4;
                 int ball=0, strike=0;
                 numbs = dis.readUTF();
                 int numb[] = new int[m];
@@ -74,28 +76,33 @@ public class Server {
                     }
                 }
                 if (strike == 0 && ball == 0) {
-                    message = numbs + " 는 Out입니다. ";
-                    System.out.println("Out입니다. ");
+                    message = "[" + in + "이닝] " + id + " : " +numbs + " 는 Out입니다. ";
+                    System.out.println(message);
                 } else if(strike == m){
-                     message = numbs + " 는 정답입니다!!!!";
+                     message = "[" + in + "이닝] " + id + " : " + numbs + " 는 정답입니다!!!!";
                     System.out.println(message);
                 }
                  else {
-                    message = id + " : " + numbs + " " + ball + "B " + strike + "S ";
-                    System.out.println(id + " : " + ball + "B " + strike + "S ");
+                    message = "[" + in + "이닝] " + id + " : " + numbs + " " + ball + "B " + strike + "S ";
+                    System.out.println(message);
                 }
+                in--;
+                System.out.println(in);
                 for (Socket s : sockets) {
                     dos = new DataOutputStream(s.getOutputStream());
-                    if(strike == m)
+                    if(strike == m) {
+                        check = true;
                         dos.writeUTF("End");
-                    else dos.writeUTF("Able");
+                    } else if (in <= 0) {
+                        check = true;
+                        dos.writeUTF("End");
+                    } else dos.writeUTF("Able");
 
                     dos.writeUTF(message);
                     dos.flush();
-                    if(strike == m) {
-                        i = 0;
-                    }
                 }
+
+
             }
         }catch (Exception e){
             try {
@@ -107,19 +114,11 @@ public class Server {
             }
         }
     }
-    public static int randomMake(){
-        Random rd = new Random();
-        return rd.nextInt(9);
-    }
-
-
-    public static int[] MakeArray(){
+    public static int[] makeArray(int m){
         int[] nums;
-        int m;
-        m=4;
         nums = new int[m];
         for(int i = 0; i < m; i++){
-            nums[i] = randomMake();
+            nums[i] = new Random().nextInt(9);
             for(int j=0; j<i; j++)
                 if(nums[i] == nums[j])
                     i--;
@@ -129,5 +128,4 @@ public class Server {
         }
         return nums;
     }
-
 }
