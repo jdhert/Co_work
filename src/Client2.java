@@ -12,7 +12,7 @@ public class Client2 {
     static DataInputStream dis = null;
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Socket socket = new Socket();
         Scanner sc = new Scanner(System.in);
         String s1, s2;
@@ -34,7 +34,6 @@ public class Client2 {
                 dos.writeUTF(s1);
                 dos.writeUTF(s2);
             }
-
             //서버로부터 데이터를 읽는 로직
             new Thread(() -> {
                 try {
@@ -43,20 +42,22 @@ public class Client2 {
                         if(msq.equals("End")) {
                             System.out.println("게임이 종료되었습니다....");
                             return;
+                        } else {
+                            String meseeage = dis.readUTF();
+                            System.out.println(meseeage);
                         }
-                        String meseeage = dis.readUTF();
-                        System.out.println(meseeage);
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }).start();
-
             while (true) {
-                System.out.print("숫자를 입력하세요 : ");
-                dos.writeUTF(sc.nextLine());
-                dos.flush();
-            }
+                    System.out.print("숫자를 입력하세요 : ");
+                    dos.writeUTF(sc.nextLine());
+                    dos.flush();
+                }
+
+
         }catch (IOException e){
             throw new RuntimeException();
         } finally {

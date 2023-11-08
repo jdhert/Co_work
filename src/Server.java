@@ -19,7 +19,7 @@ public class Server {
                 System.out.println("대기");
                 Socket socket = server.accept(); // 2명만 접속허용
                 new Thread(() -> {
-                    if (count <= 2) {
+                    if (count < 2) {
                         count++;
                         sockets.add(socket);
                         game(socket);
@@ -36,8 +36,8 @@ public class Server {
     static int in;
     static int m;
     public static void game(Socket socket){
-        DataInputStream dis = null;
-        DataOutputStream dos = null;
+        DataInputStream dis;
+        DataOutputStream dos;
         String id = "";
         InetSocketAddress isa = (InetSocketAddress)  socket.getRemoteSocketAddress();
         System.out.println("[서버] " + isa.getHostName() + "의 연결 요청을 수락함");
@@ -46,6 +46,7 @@ public class Server {
             id = dis.readUTF();
             String message;
             String numbs;
+
             if(check){
                 check = false;
                 System.out.println("이니셜라이즈");
@@ -54,11 +55,12 @@ public class Server {
                 m = Integer.parseInt(dis.readUTF());
                 in = Integer.parseInt(dis.readUTF());
                 arr =makeArray(m);
+
             } else {
                 dos = new DataOutputStream(socket.getOutputStream());
                 dos.writeUTF("bb");
-            }
 
+            }
             while (true) {
                 int ball=0, strike=0;
                 numbs = dis.readUTF();
@@ -97,11 +99,9 @@ public class Server {
                         check = true;
                         dos.writeUTF("End");
                     } else dos.writeUTF("Able");
-
                     dos.writeUTF(message);
                     dos.flush();
                 }
-
 
             }
         }catch (Exception e){

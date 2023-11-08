@@ -6,9 +6,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class Client {
+public class Client3 {
     static DataOutputStream dos = null;
     static DataInputStream dis = null;
 
