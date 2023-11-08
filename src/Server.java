@@ -10,7 +10,7 @@ import java.util.Random;
 public class Server {
     static ArrayList<Socket> sockets = new ArrayList<>();
     static ServerSocket server = null;
-    static int[] arr = null;
+    static final int[] arr = MakeArray();
     static int count =0;
     public static void main(String[] args) {
         try {
@@ -24,7 +24,6 @@ public class Server {
                 new Thread(() -> {
                     if (count <= 2) {
                         sockets.add(socket);
-                        arr = MakeArray();
                         game(socket);
                         count -= 2;
                     }
