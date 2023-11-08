@@ -50,13 +50,15 @@ public class Server {
             dis = new DataInputStream(socket.getInputStream());
             id = dis.readUTF();
             String message = "";
-            for(Socket s : sockets) {
-                if (s.equals(socket) && i == 0) {
-                    dos = new DataOutputStream(s.getOutputStream());
-                    dos.writeUTF("");
-                    m = dis.readInt();
-                    i++;
-                }
+            int ball=0, strike=0;
+            if (i==0) {
+                dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF("몇자리 숫자로 게임을 진행 하시겠습니까?");
+                dos.flush();
+            }
+            if(i == 0) {
+                m = dis.readInt();
+                i++;
             }
             nums = new int[m];
             for(int i = 0; i < m; i++){
@@ -64,13 +66,46 @@ public class Server {
             }
             while (true) {
                 message = dis.readUTF();
-                System.out.println(id+ " : " + message);
+                int numb[] = new int[m];
+                for (int i = 0; i < message.length(); i++) {
+                    numb[i] = Integer.parseInt(String.valueOf(message.charAt(i)));
+                }
+                for (int i = 0; i < m; i++) {
+                    for (int j = 0; j < m; j++) {
+                        if (nums[i] == numb[j]) {
+                            if (i == j)
+                                strike++;
+                            else ball++;
+                        }
 
-
+                    }
+                }
+                if (strike == 0 && ball == 0) {
+                    message = "Out입니다. ";
+                    System.out.println("Out입니다. ");
+                }
+                else {
+                    message =id + " : " + ball + "B " + strike + "S ";
+                    System.out.println(id + " : " + ball + "B " + strike + "S ");
+                }
+                for (Socket s : sockets) {
+                    dos = new DataOutputStream(s.getOutputStream());
+                    dos.writeUTF(message);
+                    dos.flush();
+                }
+                if(strike == m){
+                    message = "축하합니다";
+                    dos = new DataOutputStream(socket.getOutputStream());
+                    dos.writeUTF(message);
+                    dos.flush();
+                    i=0;
+                    return;
+                }
             }
         }catch (Exception e){
             try {
                 System.out.println(id + "님이 나가셨습니다. ");
+                sockets.remove(socket);
                 socket.close();
             }catch (IOException ex){
                 throw new RuntimeException(ex);
