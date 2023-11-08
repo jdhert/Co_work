@@ -77,29 +77,27 @@ public class Server {
                                 strike++;
                             else ball++;
                         }
-
                     }
                 }
                 if (strike == 0 && ball == 0) {
                     message = "Out입니다. ";
                     System.out.println("Out입니다. ");
+                } else if(strike == m){
+                     message = "축하합니다";
+                     dos = new DataOutputStream(socket.getOutputStream());
+                     dos.writeUTF(message);
+                     dos.flush();
+                     i=0;
+                     return;
                 }
-                else {
-                    message =id + " : " + ball + "B " + strike + "S ";
+                 else {
+                    message = id + " : " + ball + "B " + strike + "S ";
                     System.out.println(id + " : " + ball + "B " + strike + "S ");
                 }
                 for (Socket s : sockets) {
                     dos = new DataOutputStream(s.getOutputStream());
                     dos.writeUTF(message);
                     dos.flush();
-                }
-                if(strike == m){
-                    message = "축하합니다";
-                    dos = new DataOutputStream(socket.getOutputStream());
-                    dos.writeUTF(message);
-                    dos.flush();
-                    i=0;
-                    return;
                 }
             }
         }catch (Exception e){
