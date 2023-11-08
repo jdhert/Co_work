@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Server {
 
@@ -19,27 +20,29 @@ public class Server {
                 System.out.println("대기");
                 Socket socket = server.accept(); // 2명만 접속허용
                 count++;
-                if (count <= 2) {
-//                    game();
-                    count += 2;
-                }
+
+                new Thread(() -> {
+                    if (count <= 2) {
+                        sockets.add(socket);
+                        game(socket);
+                        count -= 2;
+                    }
+                }).start();
+
 
             }
 
-
-
-//            sockets.add(socket);
-//
-//            sockets.remove(socket);
-//            socket.close();
 
         }catch (Exception e){
 
         }
     }
+    static int i = 0;
     public static void game(Socket socket){
         DataInputStream dis = null;
         DataOutputStream dos = null;
+        int m = 0;
+        int[] nums = null;
         String id = "";
         InetSocketAddress isa = (InetSocketAddress)  socket.getRemoteSocketAddress();
         System.out.println("[서버] " + isa.getHostName() + "의 연결 요청을 수락함");
@@ -47,6 +50,18 @@ public class Server {
             dis = new DataInputStream(socket.getInputStream());
             id = dis.readUTF();
             String message = "";
+            for(Socket s : sockets) {
+                if (s.equals(socket) && i == 0) {
+                    dos = new DataOutputStream(s.getOutputStream());
+                    dos.writeUTF("");
+                    m = dis.readInt();
+                    i++;
+                }
+            }
+            nums = new int[m];
+            for(int i = 0; i < m; i++){
+                nums[i] = randomMake();
+            }
             while (true) {
                 message = dis.readUTF();
                 System.out.println(id+ " : " + message);
@@ -62,10 +77,14 @@ public class Server {
             }
         }
     }
-//    public int getInt(String s){
-//        try {
-//            System.out.println(s);
-//
-//        }
-//    }
+    public static int randomMake(){
+        Random rd = new Random();
+        return rd.nextInt(9);
+    }
+
+
+
+
+
+
 }
