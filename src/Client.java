@@ -5,13 +5,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.security.spec.RSAOtherPrimeInfo;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Client {
     static DataOutputStream dos = null;
     static DataInputStream dis = null;
-
+    static boolean checking;
 
     public static void main(String[] args) {
         Socket socket = new Socket();
@@ -26,7 +27,6 @@ public class Client {
             System.out.print("사용자 아이디를 만들어 주새요 : ");
             dos.writeUTF(sc.nextLine());
 
-
             if (dis.readUTF().equals("init")) {
                 System.out.print("몇자리 야구게임을 하시겠습니까? (3or4): ");
                 s1 = sc.nextLine();
@@ -35,28 +35,31 @@ public class Client {
                 dos.writeUTF(s1);
                 dos.writeUTF(s2);
             }
-            //서버로부터 데이터를 읽는 로직
-            new Thread(() -> {
-                try {
-                    while (true) {
-                        String msq = dis.readUTF();
-                        if(msq.equals("End")) {
-                            System.out.println("게임이 종료되었습니다....");
-                            return;
-                        } else {
-                            String meseeage = dis.readUTF();
-                            System.out.println(meseeage);
-                        }
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }).start();
+            checking = dis.readBoolean();
             while (true) {
+                if(checking) {
                     System.out.print("숫자를 입력하세요 : ");
                     dos.writeUTF(sc.nextLine());
                     dos.flush();
+                } else System.out.println("상대가 입력할때 가지 대기하세요... ");
+                String msq = dis.readUTF();
+                if (msq.equals("End")){
+                    System.out.println("게임이 종료되었습니다....");
+                    return;
+//                    System.out.println("다시 하시겠습니까? Y/N ");
+//                    String s = sc.nextLine();
+//                    dos.writeUTF(s);
+//                    dos.flush();
+//                    String s23 = dis.readUTF();
+//                    if(s23.equals("End")) {
+//                        System.out.println("게임이 종료되었습니다....");
+//                        return;
+//                    }
                 }
+                String meseeage = dis.readUTF();
+                checking = dis.readBoolean();
+                System.out.println(meseeage);
+            }
 
 
         }catch (IOException e){

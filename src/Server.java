@@ -28,17 +28,17 @@ public class Server {
                 }).start();
 
             }
-        }catch (Exception e){
-
-        }
+        }catch (Exception e){}
     }
     static boolean check = true;
     static int in;
     static int m;
+
     public static void game(Socket socket){
         DataInputStream dis;
         DataOutputStream dos;
         String id = "";
+        boolean checking;
         InetSocketAddress isa = (InetSocketAddress)  socket.getRemoteSocketAddress();
         System.out.println("[서버] " + isa.getHostName() + "의 연결 요청을 수락함");
         try {
@@ -46,7 +46,6 @@ public class Server {
             id = dis.readUTF();
             String message;
             String numbs;
-
             if(check){
                 check = false;
                 System.out.println("이니셜라이즈");
@@ -55,12 +54,14 @@ public class Server {
                 m = Integer.parseInt(dis.readUTF());
                 in = Integer.parseInt(dis.readUTF());
                 arr =makeArray(m);
-
+                checking  = true;
             } else {
                 dos = new DataOutputStream(socket.getOutputStream());
                 dos.writeUTF("bb");
-
+                checking = false;
             }
+            dos = new DataOutputStream(socket.getOutputStream());
+            dos.writeBoolean(checking);
             while (true) {
                 int ball=0, strike=0;
                 numbs = dis.readUTF();
@@ -88,18 +89,29 @@ public class Server {
                     message = "[" + in + "이닝] " + id + " : " + numbs + " " + ball + "B " + strike + "S ";
                     System.out.println(message);
                 }
+
                 in--;
                 System.out.println(in);
+                if(in < 0){
+                    message = "모든 이닝을 소진하셨습니다...";
+                }
                 for (Socket s : sockets) {
                     dos = new DataOutputStream(s.getOutputStream());
-                    if(strike == m) {
-                        check = true;
+                    if(strike == m || in < 0) {
                         dos.writeUTF("End");
-                    } else if (in <= 0) {
-                        check = true;
-                        dos.writeUTF("End");
+                            check = true;
+
+//                        String ck = dis.readUTF();
+//                        if(ck.equals("n") || ck.equals("N")) {
+//                            check = true;
+//                            dos.writeUTF("End");
+//                        } else {
+//                            game(socket);
+//                        }
                     } else dos.writeUTF("Able");
                     dos.writeUTF(message);
+                    checking = !checking;
+                    dos.writeBoolean(checking);
                     dos.flush();
                 }
 
