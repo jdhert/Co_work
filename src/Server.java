@@ -67,7 +67,7 @@ public class Server {
             while (true) {
                 message = dis.readUTF();
                 int numb[] = new int[m];
-                for (int i = 0; i < message.length(); i++) {
+                for (int i = 0; i < m; i++) {
                     numb[i] = Integer.parseInt(String.valueOf(message.charAt(i)));
                 }
                 for (int i = 0; i < m; i++) {

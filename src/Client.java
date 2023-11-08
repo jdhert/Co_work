@@ -27,6 +27,7 @@ public class Client {
             System.out.println(mab);
             System.out.print(">>");
             dos.write(sc.nextInt());
+            dos.flush();
 
             //서버로부터 데이터를 읽는 로직
             new Thread(() -> {
