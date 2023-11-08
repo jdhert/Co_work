@@ -10,7 +10,7 @@ import java.util.Random;
 public class Server {
     static ArrayList<Socket> sockets = new ArrayList<>();
     static ServerSocket server = null;
-    static final int[] arr = MakeArray();
+    static int[] arr = MakeArray();
     static int count =0;
     public static void main(String[] args) {
         try {
@@ -19,20 +19,16 @@ public class Server {
                 System.out.println("대기");
                 Socket socket = server.accept(); // 2명만 접속허용
                 count++;
-
-
                 new Thread(() -> {
                     if (count <= 2) {
                         sockets.add(socket);
                         game(socket);
                         count -= 2;
+                        arr = MakeArray();
                     }
                 }).start();
 
-
             }
-
-
         }catch (Exception e){
 
         }
@@ -51,27 +47,26 @@ public class Server {
             id = dis.readUTF();
             String message = "";
             String numbs ="";
-
-//            if (i==0) {
-//                dos = new DataOutputStream(socket.getOutputStream());
-//                dos.writeUTF("몇자리 숫자로 게임을 진행 하시겠습니까?");
-//                dos.flush();
-//            }
-//            if(i == 0) {
-//                m = dis.readInt();
+//            String abc;
+//            if(i == 0 ) {
+//                abc = dis.readUTF();
+//                m = Integer.parseInt(abc);
 //                i++;
 //            }
 
+
             while (true) {
+
+                m=4;
                 int ball=0, strike=0;
                 numbs = dis.readUTF();
                 int numb[] = new int[m];
                 for (int i = 0; i < m; i++) {
-                    arr[i] = Integer.parseInt(String.valueOf(numbs.charAt(i)));
+                    numb[i] = Integer.parseInt(String.valueOf(numbs.charAt(i)));
                 }
                 for (int i = 0; i < m; i++) {
                     for (int j = 0; j < m; j++) {
-                        if (nums[i] == numb[j]) {
+                        if (arr[i] == numb[j]) {
                             if (i == j)
                                 strike++;
                             else ball++;
@@ -94,6 +89,7 @@ public class Server {
                     if(strike == m)
                         dos.writeUTF("End");
                     else dos.writeUTF("Able");
+
                     dos.writeUTF(message);
                     dos.flush();
                     if(strike == m) {
@@ -115,10 +111,11 @@ public class Server {
         Random rd = new Random();
         return rd.nextInt(9);
     }
-    static  int m;
+
 
     public static int[] MakeArray(){
-        int[] nums ;
+        int[] nums;
+        int m;
         m=4;
         nums = new int[m];
         for(int i = 0; i < m; i++){

@@ -6,13 +6,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class Client {
+public class Client2 {
     static DataOutputStream dos = null;
     static DataInputStream dis = null;
-
-    static String sl ="";
 
     public static void main(String[] args) throws IOException {
         Socket socket = new Socket();
@@ -32,18 +29,6 @@ public class Client {
 //            dos.write(sc.nextInt());
 //            dos.flush();
 
-
-
-
-
-//            String abc = dis.readUTF();
-//            if(abc == "init") {
-//                System.out.println("몇자리 야구게임을 하시겠습니까? (3or4) : ");
-//                sl = sc.nextLine();
-//                dos.writeUTF(sc.nextLine());
-//            }
-
-
             //서버로부터 데이터를 읽는 로직
             new Thread(() -> {
                 try {
@@ -51,10 +36,6 @@ public class Client {
                         String msq = dis.readUTF();
                         if(msq == "End")
                             return;
-                        else if (msq == "init") {
-                            System.out.println("몇자리 야구게임을 하시겠습니까? (3or4) : ");
-                            sl = sc.nextLine();
-                        }
                         String meseeage = dis.readUTF();
                         System.out.println(meseeage);
                     }
@@ -65,11 +46,6 @@ public class Client {
 
             String msq = "";
             while (true) {
-                if(sl == "3" || sl ==  "4")
-                {
-                    dos.writeUTF(sl);
-                    dos.flush();
-                }
                 System.out.print(">>");
                 dos.writeUTF(sc.nextLine());
                 dos.flush();
