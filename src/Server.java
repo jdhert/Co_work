@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Server {
-
     static ArrayList<Socket> sockets = new ArrayList<>();
-    static  int[] baseBall = null;
     static ServerSocket server = null;
+    static int[] arr = null;
     static int count =0;
     public static void main(String[] args) {
         try {
@@ -21,9 +20,11 @@ public class Server {
                 Socket socket = server.accept(); // 2명만 접속허용
                 count++;
 
+
                 new Thread(() -> {
                     if (count <= 2) {
                         sockets.add(socket);
+                        arr = MakeArray();
                         game(socket);
                         count -= 2;
                     }
@@ -50,25 +51,24 @@ public class Server {
             dis = new DataInputStream(socket.getInputStream());
             id = dis.readUTF();
             String message = "";
-            int ball=0, strike=0;
-            if (i==0) {
-                dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF("몇자리 숫자로 게임을 진행 하시겠습니까?");
-                dos.flush();
-            }
-            if(i == 0) {
-                m = dis.readInt();
-                i++;
-            }
-            nums = new int[m];
-            for(int i = 0; i < m; i++){
-                nums[i] = randomMake();
-            }
+            String numbs ="";
+
+//            if (i==0) {
+//                dos = new DataOutputStream(socket.getOutputStream());
+//                dos.writeUTF("몇자리 숫자로 게임을 진행 하시겠습니까?");
+//                dos.flush();
+//            }
+//            if(i == 0) {
+//                m = dis.readInt();
+//                i++;
+//            }
+
             while (true) {
-                message = dis.readUTF();
+                int ball=0, strike=0;
+                numbs = dis.readUTF();
                 int numb[] = new int[m];
                 for (int i = 0; i < m; i++) {
-                    numb[i] = Integer.parseInt(String.valueOf(message.charAt(i)));
+                    arr[i] = Integer.parseInt(String.valueOf(numbs.charAt(i)));
                 }
                 for (int i = 0; i < m; i++) {
                     for (int j = 0; j < m; j++) {
@@ -80,24 +80,26 @@ public class Server {
                     }
                 }
                 if (strike == 0 && ball == 0) {
-                    message = "Out입니다. ";
+                    message = numbs + " 는 Out입니다. ";
                     System.out.println("Out입니다. ");
                 } else if(strike == m){
-                     message = "축하합니다";
-                     dos = new DataOutputStream(socket.getOutputStream());
-                     dos.writeUTF(message);
-                     dos.flush();
-                     i=0;
-                     return;
+                     message = numbs + " 는 정답입니다!!!!";
+                    System.out.println(message);
                 }
                  else {
-                    message = id + " : " + ball + "B " + strike + "S ";
+                    message = id + " : " + numbs + " " + ball + "B " + strike + "S ";
                     System.out.println(id + " : " + ball + "B " + strike + "S ");
                 }
                 for (Socket s : sockets) {
                     dos = new DataOutputStream(s.getOutputStream());
+                    if(strike == m)
+                        dos.writeUTF("End");
+                    else dos.writeUTF("Able");
                     dos.writeUTF(message);
                     dos.flush();
+                    if(strike == m) {
+                        i = 0;
+                    }
                 }
             }
         }catch (Exception e){
@@ -114,10 +116,22 @@ public class Server {
         Random rd = new Random();
         return rd.nextInt(9);
     }
+    static  int m;
 
-
-
-
-
+    public static int[] MakeArray(){
+        int[] nums ;
+        m=4;
+        nums = new int[m];
+        for(int i = 0; i < m; i++){
+            nums[i] = randomMake();
+            for(int j=0; j<i; j++)
+                if(nums[i] == nums[j])
+                    i--;
+        }
+        for(int n : nums) {
+            System.out.println(n);
+        }
+        return nums;
+    }
 
 }

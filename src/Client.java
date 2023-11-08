@@ -23,16 +23,19 @@ public class Client {
             System.out.print("사용자 아이디를 만들어 주새요 : ");
             dos.writeUTF(sc.nextLine());
 
-            String mab = dis.readUTF();
-            System.out.println(mab);
-            System.out.print(">>");
-            dos.write(sc.nextInt());
-            dos.flush();
+//            String mab = dis.readUTF();
+//            System.out.println(mab);
+//            System.out.print(">>");
+//            dos.write(sc.nextInt());
+//            dos.flush();
 
             //서버로부터 데이터를 읽는 로직
             new Thread(() -> {
                 try {
                     while (true) {
+                        String msq = dis.readUTF();
+                        if(msq == "End")
+                            return;
                         String meseeage = dis.readUTF();
                         System.out.println(meseeage);
                     }
@@ -41,7 +44,7 @@ public class Client {
                 }
             }).start();
 
-
+            String msq = "";
             while (true) {
                 System.out.print(">>");
                 dos.writeUTF(sc.nextLine());
