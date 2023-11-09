@@ -13,7 +13,6 @@ public class Client {
     static DataOutputStream dos = null;
     static DataInputStream dis = null;
     static boolean checking;
-
     public static void main(String[] args) {
         Socket socket = new Socket();
         Scanner sc = new Scanner(System.in);
@@ -23,9 +22,13 @@ public class Client {
             System.out.println("연결 시도중 ... 포트번호 : " + socket.getLocalPort());
             dos = new DataOutputStream(socket.getOutputStream());
             dis = new DataInputStream(socket.getInputStream());
-
-            System.out.print("사용자 아이디를 만들어 주새요 : ");
-            dos.writeUTF(sc.nextLine());
+            while(true) {
+                if (dis.readUTF().equals("NotFull")) {
+                    System.out.print("사용자 아이디를 만들어 주새요 : ");
+                    dos.writeUTF(sc.nextLine());
+                    break;
+                } else System.out.println("대기 바람... ");
+            }
 
             if (dis.readUTF().equals("init")) {
                 System.out.print("몇자리 야구게임을 하시겠습니까? (3or4): ");

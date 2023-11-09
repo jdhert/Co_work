@@ -11,19 +11,22 @@ public class Client3 {
     static DataOutputStream dos = null;
     static DataInputStream dis = null;
     static boolean checking;
-
     public static void main(String[] args) {
         Socket socket = new Socket();
         Scanner sc = new Scanner(System.in);
         String s1, s2;
         try {
-            socket.connect(new InetSocketAddress("192.168.0.201", 50002));
+            socket.connect(new InetSocketAddress("192.168.0.201", 50001));
             System.out.println("연결 시도중 ... 포트번호 : " + socket.getLocalPort());
             dos = new DataOutputStream(socket.getOutputStream());
             dis = new DataInputStream(socket.getInputStream());
-
-            System.out.print("사용자 아이디를 만들어 주새요 : ");
-            dos.writeUTF(sc.nextLine());
+            while(true) {
+                if (dis.readUTF().equals("NotFull")) {
+                    System.out.print("사용자 아이디를 만들어 주새요 : ");
+                    dos.writeUTF(sc.nextLine());
+                    break;
+                } else System.out.println("대기 바람... ");
+            }
 
             if (dis.readUTF().equals("init")) {
                 System.out.print("몇자리 야구게임을 하시겠습니까? (3or4): ");
@@ -32,7 +35,8 @@ public class Client3 {
                 s2 = sc.nextLine();
                 dos.writeUTF(s1);
                 dos.writeUTF(s2);
-            }
+                dos.flush();
+            } else System.out.println("상대가 설정중입니다... ");
             checking = dis.readBoolean();
             while (true) {
                 if(checking) {
@@ -53,10 +57,11 @@ public class Client3 {
 //                        System.out.println("게임이 종료되었습니다....");
 //                        return;
 //                    }
+                } else if (msq.equals("Able")) {
+                    String meseeage = dis.readUTF();
+                    checking = dis.readBoolean();
+                    System.out.println(meseeage);
                 }
-                String meseeage = dis.readUTF();
-                checking = dis.readBoolean();
-                System.out.println(meseeage);
             }
 
 
