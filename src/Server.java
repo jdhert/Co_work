@@ -14,26 +14,23 @@ public class Server {
     static int count =0;
     public static void main(String[] args) {
         try {
-            server = new ServerSocket(50002);
+            server = new ServerSocket(50001);
             while(true) {
                 System.out.println("대기");
                 Socket socket = server.accept(); // 2명만 접속허용
                 new Thread(() -> {
                     if (count < 2) {
                         count++;
-                        sockets.add(socket);
                         game(socket);
-                        count --;
+                        count--;
                     }
                 }).start();
-
             }
         }catch (Exception e){}
     }
     static boolean check = true;
     static int in;
     static int m;
-
     public static void game(Socket socket){
         DataInputStream dis;
         DataOutputStream dos;
@@ -44,6 +41,7 @@ public class Server {
         try {
             dis = new DataInputStream(socket.getInputStream());
             id = dis.readUTF();
+            sockets.add(socket);
             String message;
             String numbs;
             if(check){
@@ -62,43 +60,42 @@ public class Server {
             }
             dos = new DataOutputStream(socket.getOutputStream());
             dos.writeBoolean(checking);
-            while (true) {
-                int ball=0, strike=0;
-                numbs = dis.readUTF();
-                int numb[] = new int[m];
-                for (int i = 0; i < m; i++) {
-                    numb[i] = Integer.parseInt(String.valueOf(numbs.charAt(i)));
-                }
-                for (int i = 0; i < m; i++) {
-                    for (int j = 0; j < m; j++) {
-                        if (arr[i] == numb[j]) {
-                            if (i == j)
-                                strike++;
-                            else ball++;
+                while (true) {
+                    int ball = 0, strike = 0;
+                    numbs = dis.readUTF();
+                    int numb[] = new int[m];
+                    for (int i = 0; i < m; i++) {
+                        numb[i] = Integer.parseInt(String.valueOf(numbs.charAt(i)));
+                    }
+                    for (int i = 0; i < m; i++) {
+                        for (int j = 0; j < m; j++) {
+                            if (arr[i] == numb[j]) {
+                                if (i == j)
+                                    strike++;
+                                else ball++;
+                            }
                         }
                     }
-                }
-                if (strike == 0 && ball == 0) {
-                    message = "[" + in + "이닝] " + id + " : " +numbs + " 는 Out입니다. ";
-                    System.out.println(message);
-                } else if(strike == m){
-                     message = "[" + in + "이닝] " + id + " : " + numbs + " 는 정답입니다!!!!";
-                    System.out.println(message);
-                }
-                 else {
-                    message = "[" + in + "이닝] " + id + " : " + numbs + " " + ball + "B " + strike + "S ";
-                    System.out.println(message);
-                }
+                    if (strike == 0 && ball == 0) {
+                        message = "[" + in + "이닝] " + id + " : " + numbs + " 는 Out입니다. ";
+                        System.out.println(message);
+                    } else if (strike == m) {
+                        message = "[" + in + "이닝] " + id + " : " + numbs + " 는 정답입니다!!!!";
+                        System.out.println(message);
+                    } else {
+                        message = "[" + in + "이닝] " + id + " : " + numbs + " " + ball + "B " + strike + "S ";
+                        System.out.println(message);
+                    }
 
-                in--;
-                System.out.println(in);
-                if(in < 0){
-                    message = "모든 이닝을 소진하셨습니다...";
-                }
-                for (Socket s : sockets) {
-                    dos = new DataOutputStream(s.getOutputStream());
-                    if(strike == m || in < 0) {
-                        dos.writeUTF("End");
+                    in--;
+                    System.out.println(in);
+                    if (in < 0) {
+                        message = "모든 이닝을 소진하셨습니다...";
+                    }
+                    for (Socket s : sockets) {
+                        dos = new DataOutputStream(s.getOutputStream());
+                        if (strike == m || in < 0) {
+                            dos.writeUTF("End");
                             check = true;
 
 //                        String ck = dis.readUTF();
@@ -108,14 +105,13 @@ public class Server {
 //                        } else {
 //                            game(socket);
 //                        }
-                    } else dos.writeUTF("Able");
-                    dos.writeUTF(message);
-                    checking = !checking;
-                    dos.writeBoolean(checking);
-                    dos.flush();
+                        } else dos.writeUTF("Able");
+                        dos.writeUTF(message);
+                        checking = !checking;
+                        dos.writeBoolean(checking);
+                        dos.flush();
+                    }
                 }
-
-            }
         }catch (Exception e){
             try {
                 System.out.println(id + "님이 나가셨습니다. ");

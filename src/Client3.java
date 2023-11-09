@@ -17,7 +17,7 @@ public class Client3 {
         Scanner sc = new Scanner(System.in);
         String s1, s2;
         try {
-            socket.connect(new InetSocketAddress("192.168.219.104", 50002));
+            socket.connect(new InetSocketAddress("192.168.0.201", 50002));
             System.out.println("연결 시도중 ... 포트번호 : " + socket.getLocalPort());
             dos = new DataOutputStream(socket.getOutputStream());
             dis = new DataInputStream(socket.getInputStream());
